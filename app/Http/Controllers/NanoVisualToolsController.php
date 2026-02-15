@@ -78,12 +78,12 @@ class NanoVisualToolsController extends Controller
     {
         $data = $request->validate([
             'tool' => 'required|string|max:100',
-            'tool_id' => 'required|integer|exists:visual_tools,id',
+            'tool_id' => 'required|integer',
             'prefix_text' => 'nullable|string|max:500',
             'features' => 'nullable|json',
             'prompt' => 'nullable|string|max:5000',
         ]);
-
+       
         $accessToken = session('aisite_access_token');
 
         if (!$accessToken) {
