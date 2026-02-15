@@ -21,6 +21,11 @@
     <h1>Dashboard</h1>
     <p>You are logged in via AISITE OAuth.</p>
     <p>Welcome, {{ auth()->user()->name ?? 'User' }}!</p>
+    
+    <nav style="margin: 1rem 0;">
+        <a href="{{ route('nano.visual.tools') }}" style="color: #2563eb; text-decoration: none; margin-right: 1rem;">→ Nano Visual Tools</a>
+        <a href="{{ route('dashboard') }}" style="color: #2563eb; text-decoration: none;">→ Simple Image Generator</a>
+    </nav>
 
     <div class="prompt-form">
         <h2>Generate an image via AISITE</h2>
