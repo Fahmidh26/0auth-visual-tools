@@ -198,7 +198,7 @@
 
             <!-- Form Content - Scrollable -->
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4">
-                <form id="toolInterfaceForm" class="space-y-5">
+                <form id="toolInterfaceForm" class="space-y-4">
                     <input type="hidden" id="interfaceToolId" name="tool_id">
                     <input type="hidden" id="interfaceToolSlug" name="tool">
 
@@ -209,7 +209,7 @@
                     <button
                         type="submit"
                         id="interfaceGenerateBtn"
-                        class="w-full py-3 bg-primary hover:bg-primary/90 rounded-lg font-bold text-sm text-white shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group mt-5"
+                        class="w-full py-2.5 bg-primary hover:bg-primary/90 rounded-lg font-bold text-sm text-white shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group mt-4"
                     >
                         <span class="material-symbols-outlined text-lg group-hover:animate-pulse">bolt</span>
                         GENERATE
@@ -222,15 +222,15 @@
         </section>
 
         <!-- Right Preview Area -->
-        <section class="flex-1 bg-black/40 flex flex-col items-center justify-center p-8 relative overflow-hidden">
+        <section class="flex-1 bg-black/40 flex flex-col items-center justify-center p-6 relative overflow-hidden">
             <!-- Preview Controls -->
-            <div id="previewControls" class="absolute top-6 right-8 flex items-center gap-3 z-20 hidden">
-                <div class="bg-background-dark/80 backdrop-blur-md border border-white/10 rounded-lg flex p-1 shadow-2xl">
-                    <button class="p-2 hover:bg-white/5 rounded-md text-slate-400 hover:text-white transition-colors" onclick="downloadCurrentImage()">
-                        <span class="material-symbols-outlined">download</span>
+            <div id="previewControls" class="absolute top-4 right-4 flex items-center gap-2 z-20 hidden">
+                <div class="bg-background-dark/90 backdrop-blur-md border border-white/10 rounded-lg flex p-1 shadow-xl">
+                    <button class="p-2 hover:bg-white/5 rounded-md text-slate-400 hover:text-white transition-colors" onclick="downloadCurrentImage()" title="Download">
+                        <span class="material-symbols-outlined text-xl">download</span>
                     </button>
-                    <button class="p-2 hover:bg-white/5 rounded-md text-slate-400 hover:text-white transition-colors" onclick="shareCurrentImage()">
-                        <span class="material-symbols-outlined">share</span>
+                    <button class="p-2 hover:bg-white/5 rounded-md text-slate-400 hover:text-white transition-colors" onclick="shareCurrentImage()" title="Share">
+                        <span class="material-symbols-outlined text-xl">share</span>
                     </button>
                 </div>
             </div>
@@ -238,10 +238,10 @@
             <!-- Preview Content -->
             <div id="previewContent" class="w-full h-full flex items-center justify-center">
                 <div class="text-center">
-                    <div class="inline-block p-6 bg-primary/10 rounded-2xl mb-4">
-                        <span class="material-symbols-outlined text-6xl text-primary">image</span>
+                    <div class="inline-block p-5 bg-primary/10 rounded-xl mb-3">
+                        <span class="material-symbols-outlined text-5xl text-primary">image</span>
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-2">Preview Area</h3>
+                    <h3 class="text-lg font-bold text-white mb-1">Preview Area</h3>
                     <p class="text-sm text-slate-400">Your generated image will appear here</p>
                 </div>
             </div>
@@ -452,10 +452,10 @@
         const previewContent = document.getElementById('previewContent');
         previewContent.innerHTML = `
             <div class="text-center">
-                <div class="inline-block p-6 bg-primary/10 rounded-2xl mb-4">
-                    <span class="material-symbols-outlined text-6xl text-primary">image</span>
+                <div class="inline-block p-5 bg-primary/10 rounded-xl mb-3">
+                    <span class="material-symbols-outlined text-5xl text-primary">image</span>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-2">Preview Area</h3>
+                <h3 class="text-lg font-bold text-white mb-1">Preview Area</h3>
                 <p class="text-sm text-slate-400">Your generated image will appear here</p>
             </div>
         `;
@@ -489,15 +489,26 @@
 
         // Image uploads
         if (tool.image_uploads && tool.image_uploads.length > 0) {
+            const uploadsWrapper = document.createElement('div');
+            uploadsWrapper.innerHTML = `
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">
+                    ${sectionNumber}. Image Uploads
+                </label>
+            `;
+
+            const uploadsGrid = document.createElement('div');
+            uploadsGrid.className = 'grid grid-cols-3 gap-3';
+
             tool.image_uploads.forEach(upload => {
                 const uploadDiv = document.createElement('div');
+                uploadDiv.className = 'space-y-1';
                 uploadDiv.innerHTML = `
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">
-                        ${sectionNumber}. ${escapeHtml(upload.label || upload.name)}
+                    <label class="text-[10px] font-medium text-slate-300 block">
+                        ${escapeHtml(upload.label || upload.name)}
                         ${upload.required ? '<span class="text-red-400">*</span>' : ''}
                     </label>
                     <div class="relative group">
-                        <div class="aspect-video rounded-lg border-2 border-dashed border-white/10 hover:border-primary/50 transition-colors flex flex-col items-center justify-center bg-white/5 cursor-pointer overflow-hidden">
+                        <div class="aspect-[4/3] rounded-lg border-2 border-dashed border-white/10 hover:border-primary/50 transition-colors flex flex-col items-center justify-center bg-white/5 cursor-pointer overflow-hidden">
                             <input
                                 type="file"
                                 id="interface_upload_${upload.name}"
@@ -511,17 +522,20 @@
                                 <img class="w-full h-full object-cover" alt="Preview">
                             </div>
                             <div class="relative z-0 flex flex-col items-center pointer-events-none">
-                                <span class="material-symbols-outlined text-primary text-2xl mb-1">cloud_upload</span>
-                                <span class="text-xs font-medium">Upload Image</span>
-                                <span class="text-[9px] text-slate-500 mt-0.5">PNG, JPG up to 10MB</span>
+                                <span class="material-symbols-outlined text-primary text-lg mb-1">cloud_upload</span>
+                                <span class="text-[10px] font-medium">Upload</span>
+                                <span class="text-[8px] text-slate-500 mt-0.5">PNG/JPG</span>
                             </div>
                         </div>
                     </div>
-                    ${upload.description ? `<p class="text-[10px] text-slate-500 mt-1">${escapeHtml(upload.description)}</p>` : ''}
+                    ${upload.description ? `<p class="text-[9px] text-slate-500 mt-1 leading-tight">${escapeHtml(upload.description)}</p>` : ''}
                 `;
-                formContent.appendChild(uploadDiv);
-                sectionNumber++;
+                uploadsGrid.appendChild(uploadDiv);
             });
+
+            uploadsWrapper.appendChild(uploadsGrid);
+            formContent.appendChild(uploadsWrapper);
+            sectionNumber++;
         }
 
         // Features
@@ -739,10 +753,10 @@
         // Show loading in preview
         previewContent.innerHTML = `
             <div class="text-center">
-                <div class="inline-block p-6 bg-primary/10 rounded-2xl mb-4 animate-pulse">
-                    <span class="material-symbols-outlined text-6xl text-primary animate-spin">autorenew</span>
+                <div class="inline-block p-5 bg-primary/10 rounded-xl mb-3 animate-pulse">
+                    <span class="material-symbols-outlined text-5xl text-primary animate-spin">autorenew</span>
                 </div>
-                <h3 class="text-xl font-bold text-white mb-2">Generating...</h3>
+                <h3 class="text-lg font-bold text-white mb-1">Generating...</h3>
                 <p class="text-sm text-slate-400">Your image is being created</p>
             </div>
         `;
@@ -808,9 +822,9 @@
         const previewControls = document.getElementById('previewControls');
 
         previewContent.innerHTML = `
-            <div class="relative w-full max-w-4xl h-full flex items-center justify-center">
-                <div class="relative w-full aspect-square lg:aspect-video rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-                    <img src="${escapeHtml(data.image_url)}" alt="Generated image" class="w-full h-full object-cover" id="currentPreviewImage">
+            <div class="relative w-full max-w-2xl px-4">
+                <div class="relative w-full aspect-square rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.4)] ring-1 ring-white/10">
+                    <img src="${escapeHtml(data.image_url)}" alt="Generated image" class="w-full h-full object-contain bg-black/20" id="currentPreviewImage">
                 </div>
             </div>
         `;
