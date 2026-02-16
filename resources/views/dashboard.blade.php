@@ -51,104 +51,10 @@
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden">
 <div class="flex min-h-screen">
-<!-- Sidebar -->
-<aside class="w-72 glass border-r border-white/5 flex flex-col fixed h-screen z-50">
-<div class="p-8">
-<div class="flex items-center gap-3">
-<div class="size-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white">
-<span class="material-symbols-outlined font-bold">bolt</span>
-</div>
-<div>
-<h1 class="text-lg font-bold tracking-tight text-white">Clever Creator</h1>
-<p class="text-[10px] uppercase tracking-widest text-primary font-semibold">Premium AI Suite</p>
-</div>
-</div>
-</div>
-<nav class="flex-1 px-4 space-y-1">
-<div class="sidebar-active flex items-center gap-3 px-4 py-3 rounded-lg text-primary">
-<span class="material-symbols-outlined">auto_awesome</span>
-<span class="text-sm font-medium">Image Generator</span>
-<span class="ml-auto px-2 py-0.5 text-[10px] font-bold bg-primary text-white rounded-full uppercase">New</span>
-</div>
-<div class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer">
-<span class="material-symbols-outlined">photo_library</span>
-<span class="text-sm font-medium">My Gallery</span>
-</div>
-<div class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer">
-<span class="material-symbols-outlined">public</span>
-<span class="text-sm font-medium">Community Gallery</span>
-</div>
-<div class="pt-8 pb-2 px-4">
-<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Account</p>
-</div>
-<div class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer">
-<span class="material-symbols-outlined">settings</span>
-<span class="text-sm font-medium">Settings</span>
-</div>
-<div class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer">
-<span class="material-symbols-outlined">help</span>
-<span class="text-sm font-medium">Help Center</span>
-</div>
-</nav>
-<div class="p-6">
-<div class="rounded-xl p-4 bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
-<div class="flex justify-between items-center mb-2">
-<span class="text-xs font-medium text-slate-300">Token Usage</span>
-<span class="text-xs font-bold text-white">24%</span>
-</div>
-<div class="w-full bg-white/10 rounded-full h-1.5 mb-2 overflow-hidden">
-<div class="bg-primary h-full rounded-full" style="width: 24%"></div>
-</div>
-<p class="text-[10px] text-slate-400">120/500 Credits Used</p>
-<button class="w-full mt-4 py-2 px-4 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-bold transition-all flex items-center justify-center gap-2">
-<span class="material-symbols-outlined text-sm">add_circle</span>
-                        Refill Credits
-                    </button>
-</div>
-</div>
-</aside>
+@include('layouts.sidebar')
 <!-- Main Content -->
 <main class="flex-1 ml-72">
-<!-- Top Bar -->
-<header class="h-20 glass sticky top-0 z-40 px-10 border-b border-white/5 flex items-center justify-between">
-<div class="flex-1 max-w-xl">
-<div class="relative group">
-<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
-<input class="w-full bg-white/5 border-white/10 rounded-xl pl-12 pr-4 py-2.5 text-sm focus:ring-primary focus:border-primary transition-all placeholder:text-slate-600" placeholder="Search templates, styles, or generations..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-6">
-<div class="hidden lg:flex items-center gap-4 px-4 py-2 rounded-xl bg-white/5 border border-white/10">
-<div class="text-right">
-<p class="text-[10px] font-bold text-slate-400 uppercase leading-none">Balance</p>
-<p class="text-sm font-bold text-white">120 / 500 <span class="text-primary tracking-tighter ml-1">Credits</span></p>
-</div>
-<div class="h-8 w-px bg-white/10"></div>
-<button class="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-slate-300">
-<span class="material-symbols-outlined">refresh</span>
-</button>
-</div>
-<div class="flex items-center gap-3">
-<div class="relative">
-<button class="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white transition-colors">
-<span class="material-symbols-outlined">notifications</span>
-</button>
-<span class="absolute top-2 right-2 size-2 bg-secondary rounded-full border-2 border-background-dark"></span>
-</div>
-<div class="flex items-center gap-3 pl-4 border-l border-white/10">
-<div class="text-right">
-<p class="text-sm font-bold text-white">{{ auth()->user()->name ?? 'User' }}</p>
-<p class="text-[10px] text-primary font-medium">Pro Plan</p>
-</div>
-<div class="size-10 rounded-xl bg-gradient-to-tr from-primary to-secondary p-0.5">
-<div class="w-full h-full rounded-[10px] overflow-hidden bg-background-dark">
-<img class="w-full h-full object-cover" data-alt="User profile avatar portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMYzj3P7sWCBwO4pRDXDT3IhXMdYYTeiRmevYL7qO7tN_hfdFS3c_3dvWIJAzR3V0UzS6BzIBgrFsXC-TU1keMFMor-GZV_9L6Qg3mwbK0uFvjixm51mZR9ENlo4DKK4mMw9Dma_IsDb6y49hyDyuzibNwJwqRPCV8EIc_NXiFpNiR9ybyUt9gJPYJX259VN4QdotfActWg1lRmoIr08k6_vyLwMp-Znyb478OdjPgIoBMFa63N0a_f0CtuuR9QhqvnSZIdy9j3ZM"/>
-</div>
-</div>
-</div>
-</div>
-</div>
-</header>
+@include('layouts.topbar')
 <div class="p-10 space-y-10">
 <!-- Hero Section -->
 <section class="relative rounded-3xl overflow-hidden p-12">
