@@ -63,4 +63,34 @@
 </main>
 </div>
 @stack('scripts')
+<script>
+    // User dropdown toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userDropdown = document.getElementById('userDropdown');
+        const userMenuIcon = document.getElementById('userMenuIcon');
+
+        if (userMenuButton && userDropdown) {
+            // Toggle dropdown on button click
+            userMenuButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+                userMenuIcon.style.transform = userDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                    userMenuIcon.style.transform = 'rotate(0deg)';
+                }
+            });
+
+            // Prevent dropdown from closing when clicking inside it
+            userDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+    });
+</script>
 </body></html>

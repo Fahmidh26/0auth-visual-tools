@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\OAuthClientController;
 use App\Http\Controllers\DashboardImageController;
 use App\Http\Controllers\NanoVisualToolsController;
@@ -37,6 +38,14 @@ Route::get('/oauth/callback', [OAuthClientController::class, 'handleProviderCall
 Route::middleware('auth')->get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
+
+// Logout route
+Route::post('/logout', function () {
+    Auth::logout();
+    session()->invalidate();
+    session()->regenerateToken();
+    return redirect('/');
+})->name('logout');
 
 // Proxy endpoint for dashboard image generation
 Route::middleware('auth')->post('/dashboard/image', [DashboardImageController::class, 'generate'])

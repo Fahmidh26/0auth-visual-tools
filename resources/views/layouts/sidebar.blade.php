@@ -43,14 +43,40 @@
 </nav>
 <div class="p-6">
 <div class="rounded-xl p-4 bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20">
+@if($userData)
+@php
+    $creditsLeft = $userData['credits_left'] ?? 0;
+    $tokensLeft = $userData['tokens_left'] ?? 0;
+    // Assuming max credits/tokens (you can adjust these or fetch from API)
+    $maxCredits = 500;
+    $maxTokens = 10000;
+    $creditsPercentage = $maxCredits > 0 ? round(($creditsLeft / $maxCredits) * 100) : 0;
+    $tokensPercentage = $maxTokens > 0 ? round(($tokensLeft / $maxTokens) * 100) : 0;
+@endphp
 <div class="flex justify-between items-center mb-2">
 <span class="text-xs font-medium text-slate-300">Token Usage</span>
-<span class="text-xs font-bold text-white">24%</span>
+<span class="text-xs font-bold text-white">{{ $tokensPercentage }}%</span>
 </div>
 <div class="w-full bg-white/10 rounded-full h-1.5 mb-2 overflow-hidden">
-<div class="bg-primary h-full rounded-full" style="width: 24%"></div>
+<div class="bg-primary h-full rounded-full" style="width: {{ $tokensPercentage }}%"></div>
 </div>
-<p class="text-[10px] text-slate-400">120/500 Credits Used</p>
+<p class="text-[10px] text-slate-400">{{ number_format($tokensLeft) }}/{{ number_format($maxTokens) }} Tokens</p>
+<div class="mt-3 pt-3 border-t border-white/10">
+<div class="flex justify-between items-center">
+<span class="text-xs font-medium text-slate-300">Credits</span>
+<span class="text-xs font-bold text-white">{{ $creditsLeft }}</span>
+</div>
+</div>
+@else
+<div class="flex justify-between items-center mb-2">
+<span class="text-xs font-medium text-slate-300">Token Usage</span>
+<span class="text-xs font-bold text-white">--</span>
+</div>
+<div class="w-full bg-white/10 rounded-full h-1.5 mb-2 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 0%"></div>
+</div>
+<p class="text-[10px] text-slate-400">Loading...</p>
+@endif
 <button class="w-full mt-4 py-2 px-4 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-bold transition-all flex items-center justify-center gap-2">
 <span class="material-symbols-outlined text-sm">add_circle</span>
                         Refill Credits
