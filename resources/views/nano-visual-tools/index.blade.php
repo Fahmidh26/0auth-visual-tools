@@ -21,6 +21,24 @@
     .tool-card:active {
         transform: translateY(0);
     }
+    .glass-panel {
+        background: rgba(22, 27, 34, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(19, 164, 236, 0.3);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(19, 164, 236, 0.5);
+    }
     .list-view .tool-card {
         display: flex;
         align-items: center;
@@ -114,7 +132,9 @@
 @endpush
 
 @section('content')
-
+<div class="h-full">
+<!-- Directory/Grid View -->
+<div id="directoryView">
 <!-- Search and Filter Bar -->
 <div class="glass p-4 rounded-xl mb-6 border border-white/5">
     <div class="flex flex-col md:flex-row gap-4">
@@ -158,8 +178,78 @@
         <p class="text-slate-400">Loading available tools...</p>
     </div>
 </div>
+</div>
 
-<!-- Tool Modal -->
+<!-- Tool Interface View -->
+<div id="toolInterfaceView" class="hidden -m-10">
+    <div class="flex min-h-screen overflow-hidden">
+        <!-- Left Configuration Panel -->
+        <section class="w-80 lg:w-96 glass-panel border-r border-white/5 flex flex-col overflow-hidden">
+            <!-- Header with Back Button -->
+            <div class="p-4 border-b border-white/5 flex items-center gap-3 flex-shrink-0">
+                <button onclick="backToDirectory()" class="p-2 hover:bg-white/5 rounded-lg transition-colors">
+                    <span class="material-symbols-outlined text-slate-400 hover:text-white">arrow_back</span>
+                </button>
+                <div>
+                    <h2 id="toolInterfaceTitle" class="font-bold text-white text-sm"></h2>
+                    <p class="text-[10px] text-slate-500">Configure & Generate</p>
+                </div>
+            </div>
+
+            <!-- Form Content - Scrollable -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-4">
+                <form id="toolInterfaceForm" class="space-y-5">
+                    <input type="hidden" id="interfaceToolId" name="tool_id">
+                    <input type="hidden" id="interfaceToolSlug" name="tool">
+
+                    <!-- Dynamic Form Content -->
+                    <div id="interfaceFormContent"></div>
+
+                    <!-- Generate Button -->
+                    <button
+                        type="submit"
+                        id="interfaceGenerateBtn"
+                        class="w-full py-3 bg-primary hover:bg-primary/90 rounded-lg font-bold text-sm text-white shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group mt-5"
+                    >
+                        <span class="material-symbols-outlined text-lg group-hover:animate-pulse">bolt</span>
+                        GENERATE
+                    </button>
+
+                    <!-- Status Message -->
+                    <div id="interfaceFormStatus" class="hidden p-3 rounded-lg text-xs"></div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Right Preview Area -->
+        <section class="flex-1 bg-black/40 flex flex-col items-center justify-center p-8 relative overflow-hidden">
+            <!-- Preview Controls -->
+            <div id="previewControls" class="absolute top-6 right-8 flex items-center gap-3 z-20 hidden">
+                <div class="bg-background-dark/80 backdrop-blur-md border border-white/10 rounded-lg flex p-1 shadow-2xl">
+                    <button class="p-2 hover:bg-white/5 rounded-md text-slate-400 hover:text-white transition-colors" onclick="downloadCurrentImage()">
+                        <span class="material-symbols-outlined">download</span>
+                    </button>
+                    <button class="p-2 hover:bg-white/5 rounded-md text-slate-400 hover:text-white transition-colors" onclick="shareCurrentImage()">
+                        <span class="material-symbols-outlined">share</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview Content -->
+            <div id="previewContent" class="w-full h-full flex items-center justify-center">
+                <div class="text-center">
+                    <div class="inline-block p-6 bg-primary/10 rounded-2xl mb-4">
+                        <span class="material-symbols-outlined text-6xl text-primary">image</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Preview Area</h3>
+                    <p class="text-sm text-slate-400">Your generated image will appear here</p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Tool Modal (Hidden - kept for backwards compatibility) -->
 <div id="toolModal" class="modal-overlay">
     <div class="modal-content">
         <div class="flex items-center justify-between mb-6">
@@ -229,8 +319,8 @@
     </div>
 </div>
 
-<!-- Generated Images Gallery -->
-<div id="imageGallerySection" class="mt-8" style="display: none;">
+<!-- Generated Images Gallery (Hidden - using preview area instead) -->
+<div id="imageGallerySection" class="mt-8 hidden">
     <div class="flex items-center justify-between mb-4">
         <h3 class="text-xl font-bold text-white">Generated Images</h3>
         <button id="clearGalleryBtn" onclick="clearGallery()" class="text-sm text-slate-400 hover:text-white transition-colors">
@@ -238,6 +328,7 @@
         </button>
     </div>
     <div id="imageGallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+</div>
 </div>
 @endsection
 
@@ -334,14 +425,187 @@
         selectedTool = availableTools.find(t => t.id === toolId);
         if (!selectedTool) return;
 
-        // Show modal
-        document.getElementById('toolModal').classList.add('active');
-        document.getElementById('modalToolName').textContent = selectedTool.name;
-        document.getElementById('toolId').value = selectedTool.id;
-        document.getElementById('toolSlug').value = selectedTool.slug;
+        // Hide directory view and show interface view
+        document.getElementById('directoryView').classList.add('hidden');
+        document.getElementById('toolInterfaceView').classList.remove('hidden');
+
+        // Set tool info
+        document.getElementById('toolInterfaceTitle').textContent = selectedTool.name;
+        document.getElementById('interfaceToolId').value = selectedTool.id;
+        document.getElementById('interfaceToolSlug').value = selectedTool.slug;
 
         // Setup form fields
-        setupToolForm(selectedTool);
+        setupInterfaceForm(selectedTool);
+
+        // Reset preview
+        resetPreview();
+    }
+
+    function backToDirectory() {
+        document.getElementById('toolInterfaceView').classList.add('hidden');
+        document.getElementById('directoryView').classList.remove('hidden');
+        document.getElementById('toolInterfaceForm').reset();
+        selectedTool = null;
+    }
+
+    function resetPreview() {
+        const previewContent = document.getElementById('previewContent');
+        previewContent.innerHTML = `
+            <div class="text-center">
+                <div class="inline-block p-6 bg-primary/10 rounded-2xl mb-4">
+                    <span class="material-symbols-outlined text-6xl text-primary">image</span>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Preview Area</h3>
+                <p class="text-sm text-slate-400">Your generated image will appear here</p>
+            </div>
+        `;
+        document.getElementById('previewControls').classList.add('hidden');
+    }
+
+    function setupInterfaceForm(tool) {
+        const formContent = document.getElementById('interfaceFormContent');
+        formContent.innerHTML = '';
+
+        let sectionNumber = 1;
+
+        // Prompt field
+        if (tool.prompt_required) {
+            const promptDiv = document.createElement('div');
+            promptDiv.innerHTML = `
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">${sectionNumber}. Prompt</label>
+                <textarea
+                    id="interface_prompt"
+                    name="prompt"
+                    rows="2"
+                    required
+                    class="w-full bg-white/5 border-white/10 rounded-lg p-2.5 text-sm text-white placeholder:text-slate-600 focus:ring-primary focus:border-primary transition-all resize-none"
+                    placeholder="${escapeHtml(tool.prompt_placeholder || 'Enter your prompt...')}"
+                ></textarea>
+                ${tool.default_prompt ? `<p class="text-[10px] text-slate-500 mt-1">Default: ${escapeHtml(tool.default_prompt)}</p>` : ''}
+            `;
+            formContent.appendChild(promptDiv);
+            sectionNumber++;
+        }
+
+        // Image uploads
+        if (tool.image_uploads && tool.image_uploads.length > 0) {
+            tool.image_uploads.forEach(upload => {
+                const uploadDiv = document.createElement('div');
+                uploadDiv.innerHTML = `
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">
+                        ${sectionNumber}. ${escapeHtml(upload.label || upload.name)}
+                        ${upload.required ? '<span class="text-red-400">*</span>' : ''}
+                    </label>
+                    <div class="relative group">
+                        <div class="aspect-video rounded-lg border-2 border-dashed border-white/10 hover:border-primary/50 transition-colors flex flex-col items-center justify-center bg-white/5 cursor-pointer overflow-hidden">
+                            <input
+                                type="file"
+                                id="interface_upload_${upload.name}"
+                                name="${upload.name}"
+                                accept="image/*"
+                                ${upload.required ? 'required' : ''}
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                onchange="previewUploadedImage(this, 'preview_${upload.name}')"
+                            >
+                            <div id="preview_${upload.name}" class="absolute inset-0 hidden">
+                                <img class="w-full h-full object-cover" alt="Preview">
+                            </div>
+                            <div class="relative z-0 flex flex-col items-center pointer-events-none">
+                                <span class="material-symbols-outlined text-primary text-2xl mb-1">cloud_upload</span>
+                                <span class="text-xs font-medium">Upload Image</span>
+                                <span class="text-[9px] text-slate-500 mt-0.5">PNG, JPG up to 10MB</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${upload.description ? `<p class="text-[10px] text-slate-500 mt-1">${escapeHtml(upload.description)}</p>` : ''}
+                `;
+                formContent.appendChild(uploadDiv);
+                sectionNumber++;
+            });
+        }
+
+        // Features
+        if (tool.features && tool.features.length > 0) {
+            const featuresDiv = document.createElement('div');
+            featuresDiv.className = 'space-y-4';
+            featuresDiv.innerHTML = `<label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">${sectionNumber}. Settings</label>`;
+
+            tool.features.forEach(feature => {
+                const featureDiv = document.createElement('div');
+                featureDiv.className = 'space-y-1.5';
+
+                let inputHtml = '';
+                if (feature.type === 'select') {
+                    inputHtml = `
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-medium">${escapeHtml(feature.label || feature.name)}</span>
+                        </div>
+                        <select
+                            id="interface_feature_${feature.name}"
+                            name="features[${feature.name}]"
+                            class="w-full bg-white/5 border-white/10 rounded-lg p-2 text-sm text-white focus:ring-primary focus:border-primary transition-all"
+                        >
+                            ${(feature.options || []).map(opt => `
+                                <option value="${escapeHtml(opt)}" ${opt === feature.default ? 'selected' : ''}>
+                                    ${escapeHtml(opt)}
+                                </option>
+                            `).join('')}
+                        </select>
+                    `;
+                } else if (feature.type === 'number' || feature.type === 'range') {
+                    const value = feature.default || feature.min || 50;
+                    inputHtml = `
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-medium">${escapeHtml(feature.label || feature.name)}</span>
+                            <span class="text-[10px] text-primary font-bold" id="interface_feature_${feature.name}_value">${value}${feature.unit || ''}</span>
+                        </div>
+                        <input
+                            type="range"
+                            id="interface_feature_${feature.name}"
+                            name="features[${feature.name}]"
+                            value="${value}"
+                            min="${feature.min || 0}"
+                            max="${feature.max || 100}"
+                            class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+                            oninput="document.getElementById('interface_feature_${feature.name}_value').textContent = this.value + '${feature.unit || ''}'"
+                        >
+                    `;
+                } else {
+                    inputHtml = `
+                        <label class="text-[10px] font-medium block mb-1">${escapeHtml(feature.label || feature.name)}</label>
+                        <input
+                            type="text"
+                            id="interface_feature_${feature.name}"
+                            name="features[${feature.name}]"
+                            value="${feature.default || ''}"
+                            placeholder="${escapeHtml(feature.placeholder || '')}"
+                            class="w-full bg-white/5 border-white/10 rounded-lg p-2 text-sm text-white placeholder:text-slate-600 focus:ring-primary focus:border-primary transition-all"
+                        >
+                    `;
+                }
+
+                featureDiv.innerHTML = inputHtml;
+                if (feature.description) {
+                    featureDiv.innerHTML += `<p class="text-[9px] text-slate-500 mt-1">${escapeHtml(feature.description)}</p>`;
+                }
+                featuresDiv.appendChild(featureDiv);
+            });
+
+            formContent.appendChild(featuresDiv);
+        }
+    }
+
+    function previewUploadedImage(input, previewId) {
+        const preview = document.getElementById(previewId);
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.querySelector('img').src = e.target.result;
+                preview.classList.remove('hidden');
+                preview.previousElementSibling.classList.add('hidden');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
     }
 
     function closeToolModal() {
@@ -454,7 +718,137 @@
         }
     }
 
-    // Handle form submission
+    // Handle tool interface form submission
+    document.getElementById('toolInterfaceForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const btn = document.getElementById('interfaceGenerateBtn');
+        const statusEl = document.getElementById('interfaceFormStatus');
+        const previewContent = document.getElementById('previewContent');
+
+        btn.disabled = true;
+        statusEl.className = 'p-3 rounded-lg bg-primary/10 border border-primary/20 text-primary text-xs';
+        statusEl.classList.remove('hidden');
+        statusEl.innerHTML = `
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined animate-spin text-sm">autorenew</span>
+                <span>Generating...</span>
+            </div>
+        `;
+
+        // Show loading in preview
+        previewContent.innerHTML = `
+            <div class="text-center">
+                <div class="inline-block p-6 bg-primary/10 rounded-2xl mb-4 animate-pulse">
+                    <span class="material-symbols-outlined text-6xl text-primary animate-spin">autorenew</span>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Generating...</h3>
+                <p class="text-sm text-slate-400">Your image is being created</p>
+            </div>
+        `;
+
+        try {
+            const formData = new FormData(e.target);
+
+            // Collect features
+            const features = {};
+            document.querySelectorAll('[name^="features["]').forEach(input => {
+                const name = input.name.match(/features\[(.*?)\]/)[1];
+                features[name] = input.value;
+            });
+
+            if (Object.keys(features).length > 0) {
+                formData.set('features', JSON.stringify(features));
+            }
+
+            const response = await fetch('{{ route("api.nano.visual.tools.run") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Image generation failed');
+            }
+
+            statusEl.className = 'p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs';
+            statusEl.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">check_circle</span>
+                    <span>Success! Credits: ${data.credits_used || 0}</span>
+                </div>
+            `;
+
+            // Display generated image in preview
+            if (data.image_url) {
+                displayInPreview(data);
+            }
+        } catch (error) {
+            statusEl.className = 'p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs';
+            statusEl.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">error</span>
+                    <span>Error: ${error.message}</span>
+                </div>
+            `;
+
+            // Reset preview on error
+            resetPreview();
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    function displayInPreview(data) {
+        const previewContent = document.getElementById('previewContent');
+        const previewControls = document.getElementById('previewControls');
+
+        previewContent.innerHTML = `
+            <div class="relative w-full max-w-4xl h-full flex items-center justify-center">
+                <div class="relative w-full aspect-square lg:aspect-video rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+                    <img src="${escapeHtml(data.image_url)}" alt="Generated image" class="w-full h-full object-cover" id="currentPreviewImage">
+                </div>
+            </div>
+        `;
+
+        previewControls.classList.remove('hidden');
+
+        // Store current image URL for download/share
+        window.currentImageUrl = data.image_url;
+        window.currentImageData = data;
+    }
+
+    function downloadCurrentImage() {
+        if (window.currentImageUrl) {
+            const link = document.createElement('a');
+            link.href = window.currentImageUrl;
+            link.download = `generated-image-${Date.now()}.png`;
+            link.click();
+        }
+    }
+
+    function shareCurrentImage() {
+        if (window.currentImageUrl && navigator.share) {
+            navigator.share({
+                title: 'Generated Image',
+                text: 'Check out this AI-generated image!',
+                url: window.currentImageUrl
+            }).catch(() => {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(window.currentImageUrl);
+                alert('Image URL copied to clipboard!');
+            });
+        } else if (window.currentImageUrl) {
+            navigator.clipboard.writeText(window.currentImageUrl);
+            alert('Image URL copied to clipboard!');
+        }
+    }
+
+    // Handle form submission (modal - kept for backwards compatibility)
     document.getElementById('runToolForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
