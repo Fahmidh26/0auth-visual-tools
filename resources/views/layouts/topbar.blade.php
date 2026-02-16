@@ -1,10 +1,7 @@
 <!-- Top Bar -->
 <header class="h-20 glass sticky top-0 z-40 px-10 border-b border-white/5 flex items-center justify-between">
 <div class="flex-1 max-w-xl">
-<div class="relative group">
-<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
-<input class="w-full bg-white/5 border-white/10 rounded-xl pl-12 pr-4 py-2.5 text-sm focus:ring-primary focus:border-primary transition-all placeholder:text-slate-600" placeholder="Search templates, styles, or generations..." type="text"/>
-</div>
+
 </div>
 <div class="flex items-center gap-6">
 <div class="hidden lg:flex items-center gap-4 px-4 py-2 rounded-xl bg-white/5 border border-white/10">

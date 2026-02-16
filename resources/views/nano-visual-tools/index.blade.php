@@ -9,30 +9,42 @@
         color: #13a4ec;
     }
     .tool-card {
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        backdrop-filter: blur(12px);
     }
     .tool-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(19, 164, 236, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1);
+        border-color: rgba(19, 164, 236, 0.4) !important;
+    }
+    .tool-card:active {
+        transform: translateY(0);
     }
     .list-view .tool-card {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: 0;
+        overflow: visible;
+    }
+    .list-view .tool-card .tool-thumbnail {
+        border-radius: 0.75rem 0 0 0.75rem;
     }
     .list-view .tool-card .tool-icon {
         flex-shrink: 0;
     }
     .list-view .tool-card .tool-content {
         flex: 1;
+        min-width: 0;
     }
     .tool-thumbnail {
         position: relative;
         width: 100%;
-        padding-bottom: 60%;
-        background: linear-gradient(135deg, rgba(19, 164, 236, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-        border-radius: 0.75rem;
+        padding-bottom: 56%;
+        background: linear-gradient(135deg, rgba(19, 164, 236, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+        border-radius: 0.75rem 0.75rem 0 0;
         overflow: hidden;
-        margin-bottom: 1rem;
+        margin-bottom: 0;
     }
     .tool-thumbnail img {
         position: absolute;
@@ -48,10 +60,17 @@
         left: 50%;
         transform: translate(-50%, -50%);
     }
+    .tool-thumbnail img {
+        transition: transform 0.3s ease;
+    }
+    .tool-card:hover .tool-thumbnail img {
+        transform: scale(1.05);
+    }
     .list-view .tool-thumbnail {
-        width: 120px;
-        padding-bottom: 80px;
+        width: 100px;
+        padding-bottom: 65px;
         margin-bottom: 0;
+        flex-shrink: 0;
     }
     .modal-overlay {
         position: fixed;
@@ -95,22 +114,9 @@
 @endpush
 
 @section('content')
-<!-- Header Section -->
-<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-    <div>
-        <h2 class="text-4xl font-black text-white mb-2">Image Tools</h2>
-        <p class="text-slate-400">Generate stunning images using AI-powered visual tools</p>
-    </div>
-    <div class="flex items-center gap-3">
-        <div class="glass px-4 py-2 rounded-xl border border-primary/20">
-            <span class="text-xs text-slate-400">Available Credits:</span>
-            <span class="text-lg font-bold text-primary ml-2">120</span>
-        </div>
-    </div>
-</div>
 
 <!-- Search and Filter Bar -->
-<div class="glass p-6 rounded-2xl mb-8 border border-white/5">
+<div class="glass p-4 rounded-xl mb-6 border border-white/5">
     <div class="flex flex-col md:flex-row gap-4">
         <!-- Search -->
         <div class="flex-1 relative group">
@@ -224,14 +230,14 @@
 </div>
 
 <!-- Generated Images Gallery -->
-<div id="imageGallerySection" class="mt-10" style="display: none;">
-    <div class="flex items-center justify-between mb-6">
-        <h3 class="text-2xl font-bold text-white">Generated Images</h3>
+<div id="imageGallerySection" class="mt-8" style="display: none;">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-bold text-white">Generated Images</h3>
         <button id="clearGalleryBtn" onclick="clearGallery()" class="text-sm text-slate-400 hover:text-white transition-colors">
             Clear Gallery
         </button>
     </div>
-    <div id="imageGallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+    <div id="imageGallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
 </div>
 @endsection
 
@@ -285,7 +291,7 @@
         }
 
         const viewClass = currentView === 'list' ? 'list-view' : '';
-        const gridClass = currentView === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4';
+        const gridClass = currentView === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' : 'space-y-3';
 
         container.innerHTML = `
             <div class="${gridClass} ${viewClass}">
@@ -294,25 +300,26 @@
                         ? `<img src="${escapeHtml(tool.preview_image)}"
                                alt="${escapeHtml(tool.name)}"
                                loading="lazy"
-                               onerror="this.style.display='none'; this.parentElement.innerHTML = '<div class=\\'icon-placeholder\\'><div class=\\'size-16 rounded-xl bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center\\'><span class=\\'material-symbols-outlined text-4xl text-primary\\'>auto_awesome</span></div></div>';">`
+                               onerror="this.style.display='none'; this.parentElement.innerHTML = '<div class=\\'icon-placeholder\\'><div class=\\'size-12 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center\\'><span class=\\'material-symbols-outlined text-3xl text-primary\\'>auto_awesome</span></div></div>';">`
                         : `<div class="icon-placeholder">
-                            <div class="size-16 rounded-xl bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
-                                <span class="material-symbols-outlined text-4xl text-primary">auto_awesome</span>
+                            <div class="size-12 rounded-lg bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-3xl text-primary">auto_awesome</span>
                             </div>
                            </div>`;
 
                     return `
-                        <div class="tool-card glass p-6 rounded-2xl border border-white/5 hover:border-primary/30 cursor-pointer transition-all" onclick="selectTool(${tool.id})">
+                        <div class="tool-card glass rounded-xl border border-white/5 hover:border-primary/30 cursor-pointer transition-all overflow-hidden" onclick="selectTool(${tool.id})">
                             <div class="tool-thumbnail">
                                 ${thumbnailHtml}
                             </div>
-                            <div class="tool-content">
-                                <h3 class="text-lg font-bold text-white mb-2">${escapeHtml(tool.name)}</h3>
-                                <p class="text-sm text-slate-400 mb-4 line-clamp-2">${escapeHtml(tool.description || 'No description available')}</p>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs font-medium text-primary">${tool.credits_per_generation || 2} credits</span>
-                                    <button class="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-xs font-bold transition-all">
-                                        Use Tool
+                            <div class="tool-content p-4">
+                                <h3 class="text-base font-bold text-white mb-1.5">${escapeHtml(tool.name)}</h3>
+                                <p class="text-xs text-slate-400 mb-3 line-clamp-2 leading-relaxed">${escapeHtml(tool.description || 'No description available')}</p>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs font-semibold text-primary/90 bg-primary/10 px-2 py-1 rounded">${tool.credits_per_generation || 2} credits</span>
+                                    <button class="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">play_arrow</span>
+                                        Use
                                     </button>
                                 </div>
                             </div>
