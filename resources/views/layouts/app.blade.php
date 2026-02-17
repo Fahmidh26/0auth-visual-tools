@@ -48,6 +48,40 @@
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
+        /* ── Sidebar collapse ── */
+        #appSidebar {
+            transition: width 0.3s ease;
+            will-change: width;
+        }
+        #appMain {
+            transition: margin-left 0.3s ease;
+        }
+        #appSidebar.sidebar-collapsed {
+            width: 4.5rem;
+        }
+        #appSidebar.sidebar-collapsed .sidebar-label {
+            display: none;
+        }
+        #appSidebar.sidebar-collapsed .sidebar-footer {
+            display: none;
+        }
+        #appSidebar.sidebar-collapsed nav a,
+        #appSidebar.sidebar-collapsed nav > div.cursor-pointer {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        #appSidebar.sidebar-collapsed .sidebar-logo {
+            justify-content: center;
+            padding: 1rem;
+        }
+        #appSidebar.sidebar-collapsed .sidebar-logo .sidebar-label {
+            display: none;
+        }
+        /* Toggle button direction indicator */
+        #appSidebar.sidebar-collapsed #sidebarToggleIcon {
+            transform: rotate(180deg);
+        }
     </style>
 @stack('styles')
 </head>
@@ -55,7 +89,7 @@
 <div class="flex min-h-screen">
 @include('layouts.sidebar')
 <!-- Main Content -->
-<main class="flex-1 ml-72">
+<main id="appMain" class="flex-1 ml-72">
 @include('layouts.topbar')
 <div class="p-10 space-y-10">
 @yield('content')
@@ -65,6 +99,16 @@
 @stack('modals')
 @stack('scripts')
 <script>
+    // Sidebar toggle
+    function toggleSidebar() {
+        const sidebar = document.getElementById('appSidebar');
+        const main = document.getElementById('appMain');
+        const icon = document.getElementById('sidebarToggleIcon');
+        const isNowCollapsed = sidebar.classList.toggle('sidebar-collapsed');
+        main.style.marginLeft = isNowCollapsed ? '4.5rem' : '';
+        if (icon) icon.textContent = isNowCollapsed ? 'chevron_right' : 'chevron_left';
+    }
+
     // User dropdown toggle
     document.addEventListener('DOMContentLoaded', function() {
         const userMenuButton = document.getElementById('userMenuButton');

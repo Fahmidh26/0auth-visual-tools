@@ -270,11 +270,15 @@
         <section class="w-80 lg:w-96 glass-panel border-r border-white/5 flex flex-col overflow-hidden">
             <!-- Header with Back Button -->
             <div class="p-4 border-b border-white/5 flex items-center gap-3 flex-shrink-0">
-                <button onclick="backToDirectory()" class="p-2 hover:bg-white/5 rounded-lg transition-colors">
+                <button onclick="backToDirectory()" class="p-2 hover:bg-white/5 rounded-lg transition-colors flex-shrink-0">
                     <span class="material-symbols-outlined text-slate-400 hover:text-white">arrow_back</span>
                 </button>
-                <div>
-                    <h2 id="toolInterfaceTitle" class="font-bold text-white text-sm"></h2>
+                <!-- Tool thumbnail -->
+                <div id="toolHeaderThumbnail" class="hidden w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-white/10 bg-gradient-to-br from-primary/20 to-secondary/20">
+                    <img id="toolHeaderThumbnailImg" src="" alt="" class="w-full h-full object-cover">
+                </div>
+                <div class="min-w-0">
+                    <h2 id="toolInterfaceTitle" class="font-bold text-white text-sm truncate"></h2>
                     <p class="text-[10px] text-slate-500">Configure & Generate</p>
                 </div>
             </div>
@@ -699,6 +703,20 @@
         document.getElementById('interfaceToolId').value = selectedTool.id;
         document.getElementById('interfaceToolSlug').value = selectedTool.slug;
 
+        // Show tool thumbnail in panel header
+        const thumbWrap = document.getElementById('toolHeaderThumbnail');
+        const thumbImg  = document.getElementById('toolHeaderThumbnailImg');
+        if (selectedTool.preview_image) {
+            thumbImg.src = selectedTool.preview_image;
+            thumbImg.alt = selectedTool.name;
+            thumbWrap.classList.remove('hidden');
+        } else {
+            thumbWrap.classList.add('hidden');
+        }
+
+        // Collapse the main navigation sidebar for more workspace
+        collapseSidebar();
+
         // Setup form fields
         setupInterfaceForm(selectedTool);
 
@@ -711,6 +729,31 @@
         document.getElementById('directoryView').classList.remove('hidden');
         document.getElementById('toolInterfaceForm').reset();
         selectedTool = null;
+
+        // Restore main navigation sidebar
+        expandSidebar();
+    }
+
+    function collapseSidebar() {
+        const sidebar = document.getElementById('appSidebar');
+        const main    = document.getElementById('appMain');
+        const icon    = document.getElementById('sidebarToggleIcon');
+        if (sidebar && !sidebar.classList.contains('sidebar-collapsed')) {
+            sidebar.classList.add('sidebar-collapsed');
+            if (main) main.style.marginLeft = '4.5rem';
+            if (icon) icon.textContent = 'chevron_right';
+        }
+    }
+
+    function expandSidebar() {
+        const sidebar = document.getElementById('appSidebar');
+        const main    = document.getElementById('appMain');
+        const icon    = document.getElementById('sidebarToggleIcon');
+        if (sidebar) {
+            sidebar.classList.remove('sidebar-collapsed');
+            if (main) main.style.marginLeft = '';
+            if (icon) icon.textContent = 'chevron_left';
+        }
     }
 
     function resetPreview() {
