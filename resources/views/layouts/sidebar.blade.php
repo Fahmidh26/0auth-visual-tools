@@ -25,10 +25,10 @@
 <span class="material-symbols-outlined">photo_library</span>
 <span class="text-sm font-medium">My Gallery</span>
 </a>
-<div class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer">
+<a href="{{ route('community.gallery') }}" class="{{ request()->routeIs('community.gallery') ? 'sidebar-active' : '' }} flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('community.gallery') ? 'text-primary' : 'text-slate-400 hover:text-white hover:bg-white/5' }} transition-colors cursor-pointer">
 <span class="material-symbols-outlined">public</span>
 <span class="text-sm font-medium">Community Gallery</span>
-</div>
+</a>
 <div class="pt-8 pb-2 px-4">
 <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Account</p>
 </div>

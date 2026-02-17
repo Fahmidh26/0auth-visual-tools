@@ -6,6 +6,7 @@ use App\Http\Controllers\OAuthClientController;
 use App\Http\Controllers\DashboardImageController;
 use App\Http\Controllers\NanoVisualToolsController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\CommunityGalleryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,4 +80,10 @@ Route::middleware('auth')->group(function () {
         ->name('gallery');
     Route::get('/api/gallery', [GalleryController::class, 'getImages'])
         ->name('api.gallery');
+
+    // Community Gallery routes
+    Route::get('/community-gallery', [CommunityGalleryController::class, 'index'])
+        ->name('community.gallery');
+    Route::get('/api/community-gallery', [CommunityGalleryController::class, 'getImages'])
+        ->name('api.community.gallery');
 });
