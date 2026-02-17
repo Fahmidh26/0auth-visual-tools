@@ -21,10 +21,10 @@
 <span class="text-sm font-medium">Image Tools</span>
 <span class="ml-auto px-2 py-0.5 text-[10px] font-bold bg-primary text-white rounded-full uppercase">New</span>
 </a>
-<div class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer">
+<a href="{{ route('gallery') }}" class="{{ request()->routeIs('gallery') ? 'sidebar-active' : '' }} flex items-center gap-3 px-4 py-3 rounded-lg {{ request()->routeIs('gallery') ? 'text-primary' : 'text-slate-400 hover:text-white hover:bg-white/5' }} transition-colors cursor-pointer">
 <span class="material-symbols-outlined">photo_library</span>
 <span class="text-sm font-medium">My Gallery</span>
-</div>
+</a>
 <div class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer">
 <span class="material-symbols-outlined">public</span>
 <span class="text-sm font-medium">Community Gallery</span>

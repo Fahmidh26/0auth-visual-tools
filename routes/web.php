@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\OAuthClientController;
 use App\Http\Controllers\DashboardImageController;
 use App\Http\Controllers\NanoVisualToolsController;
+use App\Http\Controllers\GalleryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,4 +73,10 @@ Route::middleware('auth')->group(function () {
     
     Route::post('/api/nano-visual-tools/regenerate', [NanoVisualToolsController::class, 'regenerate'])
         ->name('api.nano.visual.tools.regenerate');
+
+    // Gallery routes
+    Route::get('/gallery', [GalleryController::class, 'index'])
+        ->name('gallery');
+    Route::get('/api/gallery', [GalleryController::class, 'getImages'])
+        ->name('api.gallery');
 });
