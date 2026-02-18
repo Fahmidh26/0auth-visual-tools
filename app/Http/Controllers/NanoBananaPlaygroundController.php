@@ -193,4 +193,38 @@ class NanoBananaPlaygroundController extends Controller
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * GET /playground/api/proxy-image?url=...
+     *
+     * Server-side image proxy to bypass browser CORS restrictions on
+     * Azure Blob Storage URLs. Fetches the image server-side and streams
+     * it back to the client with the correct Content-Type.
+     */
+    public function proxyImage(Request $request)
+    {
+        $url = $request->query('url');
+
+        if (!$url) {
+            return response()->json(['error' => 'Missing url parameter.'], 400);
+        }
+
+        // Only allow proxying from trusted blob storage hosts
+        $host = parse_url($url, PHP_URL_HOST) ?? '';
+        if (!str_ends_with($host, '.blob.core.windows.net') && !str_ends_with($host, '.windows.net')) {
+            return response()->json(['error' => 'URL not allowed.'], 403);
+        }
+
+        try {
+            $response    = $this->http()->get($url);
+            $contentType = $response->getHeaderLine('Content-Type') ?: 'image/jpeg';
+            $body        = $response->getBody()->getContents();
+
+            return response($body, 200)->header('Content-Type', $contentType);
+
+        } catch (\Throwable $e) {
+            Log::error('Playground proxyImage error', ['url' => $url, 'message' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to fetch image.'], 502);
+        }
+    }
 }

@@ -70,7 +70,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 5rem 1rem 1rem;
+        padding: 5rem 1rem 5rem;
     }
     #canvasMainImage {
         max-width: min(640px, 80%);
@@ -378,6 +378,77 @@
         outline: 2px dashed rgba(19,164,236,0.5);
         outline-offset: -2px;
     }
+
+    /* ── Quick Actions Bar ───────────────────────────── */
+    #quickActionsBar {
+        position: absolute;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 0.125rem;
+        background: rgba(10, 13, 18, 0.9);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 9999px;
+        padding: 0.3125rem 0.5rem;
+        z-index: 15;
+        white-space: nowrap;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        animation: canvasFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .qab-label {
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #1e293b;
+        font-weight: 700;
+        padding: 0 0.375rem 0 0.25rem;
+        flex-shrink: 0;
+    }
+    .qab-divider {
+        width: 1px;
+        height: 16px;
+        background: rgba(255,255,255,0.06);
+        flex-shrink: 0;
+        margin: 0 0.1875rem;
+    }
+    .qab-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3125rem;
+        padding: 0.3125rem 0.625rem;
+        border-radius: 9999px;
+        font-size: 0.6875rem;
+        font-weight: 500;
+        color: #475569;
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+        line-height: 1;
+    }
+    .qab-btn:hover:not(:disabled) {
+        background: rgba(255,255,255,0.07);
+        border-color: rgba(255,255,255,0.08);
+        color: #cbd5e1;
+    }
+    .qab-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+    .qab-btn.qab-active {
+        color: #13a4ec;
+        background: rgba(19,164,236,0.1);
+        border-color: rgba(19,164,236,0.2);
+    }
+    .qab-icon {
+        font-size: 13px !important;
+        line-height: 1 !important;
+    }
 </style>
 @endpush
 
@@ -444,6 +515,41 @@
                     </button>
                 </div>
             </div>
+        </div>
+
+        {{-- Quick Actions Bar (appears when image is on canvas) --}}
+        <div id="quickActionsBar" style="display:none;">
+            <span class="qab-label">Quick</span>
+            <div class="qab-divider"></div>
+            <button id="qab-remove_bg" class="qab-btn" onclick="runQuickAction('remove_bg')" title="Remove background">
+                <span class="material-symbols-outlined qab-icon">auto_fix_high</span>
+                <span>Remove BG</span>
+            </button>
+            <button id="qab-enhance" class="qab-btn" onclick="runQuickAction('enhance')" title="Auto enhance image">
+                <span class="material-symbols-outlined qab-icon">tune</span>
+                <span>Enhance</span>
+            </button>
+            <button id="qab-sketch" class="qab-btn" onclick="runQuickAction('sketch')" title="Pencil sketch style">
+                <span class="material-symbols-outlined qab-icon">gesture</span>
+                <span>Sketch</span>
+            </button>
+            <button id="qab-avatar" class="qab-btn" onclick="runQuickAction('avatar')" title="AI avatar portrait">
+                <span class="material-symbols-outlined qab-icon">face_retouching_natural</span>
+                <span>AI Avatar</span>
+            </button>
+            <div class="qab-divider"></div>
+            <button id="qab-expand" class="qab-btn" onclick="runQuickAction('expand')" title="Outpaint / expand image">
+                <span class="material-symbols-outlined qab-icon">open_in_full</span>
+                <span>Expand</span>
+            </button>
+            <button id="qab-upscale" class="qab-btn" onclick="runQuickAction('upscale')" title="Upscale & sharpen">
+                <span class="material-symbols-outlined qab-icon">hd</span>
+                <span>Upscale</span>
+            </button>
+            <button id="qab-cartoon" class="qab-btn" onclick="runQuickAction('cartoon')" title="Cartoon / illustration style">
+                <span class="material-symbols-outlined qab-icon">brush</span>
+                <span>Cartoon</span>
+            </button>
         </div>
 
     </div>
@@ -617,6 +723,76 @@ const S = {
     activeFlowIdx:  -1,
 };
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
+
+// ── Quick Actions config ───────────────────────────────────────────────────────
+let activeQuickAction = null;
+
+const QUICK_ACTIONS = {
+    remove_bg: {
+        icon:   'auto_fix_high',
+        prompt: 'Remove the background from this image completely, isolating only the main subject with clean, precise edges. Keep all foreground detail.',
+    },
+    enhance: {
+        icon:   'tune',
+        prompt: 'Auto-enhance this image: improve exposure, contrast, sharpness, vibrance, and overall quality for a polished, professional result.',
+    },
+    sketch: {
+        icon:   'gesture',
+        prompt: 'Transform this image into a detailed hand-drawn pencil sketch illustration with expressive line work and subtle shading.',
+    },
+    avatar: {
+        icon:   'face_retouching_natural',
+        prompt: 'Convert this into a stylized AI portrait avatar with artistic enhancement. Preserve the likeness but make it look refined and striking.',
+    },
+    expand: {
+        icon:   'open_in_full',
+        prompt: 'Outpaint and expand this image by naturally extending the scene beyond its current borders in all directions, blending seamlessly.',
+    },
+    upscale: {
+        icon:   'hd',
+        prompt: 'Upscale and enhance the resolution of this image, adding fine detail, clarity, and sharpness while preserving the original composition.',
+    },
+    cartoon: {
+        icon:   'brush',
+        prompt: 'Convert this image into a vibrant cartoon or animated illustration style with bold colors, clean outlines, and a playful artistic feel.',
+    },
+};
+
+// ── Quick action trigger ────────────────────────────────────────────────────────
+async function runQuickAction(action) {
+    if (S.isGenerating) return;
+    const url = document.getElementById('canvasMainImage').src;
+    if (!url) return;
+    const cfg = QUICK_ACTIONS[action];
+    if (!cfg) return;
+
+    // Fetch current canvas image via the server-side proxy to avoid CORS
+    // restrictions on Azure Blob Storage URLs.
+    let blob;
+    try {
+        const proxyUrl = '{{ route("playground.api.proxy.image") }}?url=' + encodeURIComponent(url);
+        blob = await fetch(proxyUrl).then(r => {
+            if (!r.ok) throw new Error('Proxy fetch failed: ' + r.status);
+            return r.blob();
+        });
+    } catch { return; }
+
+    const ext = blob.type.includes('png') ? 'png' : 'jpg';
+    S.refFile = new File([blob], `canvas.${ext}`, { type: blob.type });
+
+    // Track which action is active (used by setMiniGenerating for button state)
+    activeQuickAction = action;
+
+    // Pre-fill the prompt and trigger the normal send flow
+    const input = document.getElementById('miniPromptInput');
+    input.value = cfg.prompt;
+
+    // Expand minichat so the user sees the progress
+    if (!S.minichatOpen) toggleMinichat();
+
+    await sendMiniChat();
+    activeQuickAction = null;
+}
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -894,10 +1070,12 @@ function renderCanvasImage(url) {
     const container = document.getElementById('canvasImageContainer');
     const img       = document.getElementById('canvasMainImage');
     const hint      = document.getElementById('canvasEmptyHint');
+    const qab       = document.getElementById('quickActionsBar');
 
     if (!url) {
         container.style.display = 'none';
         hint.style.display = '';
+        qab.style.display = 'none';
         return;
     }
 
@@ -907,6 +1085,7 @@ function renderCanvasImage(url) {
     void img.offsetWidth; // reflow
     img.style.animation = '';
     container.style.display = 'flex';
+    qab.style.display = 'flex';
 }
 
 // ── Render: flow strip ────────────────────────────────────────────────────────
@@ -1140,6 +1319,23 @@ function setMiniGenerating(gen) {
     document.getElementById('miniSendIcon').textContent  = gen ? 'hourglass_top' : 'arrow_upward';
     if (gen) document.getElementById('miniSendIcon').classList.add('animate-spin');
     else     document.getElementById('miniSendIcon').classList.remove('animate-spin');
+
+    // Sync quick action bar — disable all during generation, highlight active one
+    document.querySelectorAll('.qab-btn').forEach(btn => {
+        btn.disabled = gen;
+        const key = btn.id ? btn.id.replace('qab-', '') : '';
+        const isActive = gen && key === activeQuickAction;
+        btn.classList.toggle('qab-active', isActive);
+        const iconEl = btn.querySelector('.qab-icon');
+        if (!iconEl) return;
+        if (isActive) {
+            iconEl.textContent = 'hourglass_top';
+            iconEl.classList.add('animate-spin');
+        } else if (!gen && QUICK_ACTIONS[key]) {
+            iconEl.textContent = QUICK_ACTIONS[key].icon;
+            iconEl.classList.remove('animate-spin');
+        }
+    });
 }
 
 function miniResize(el) {

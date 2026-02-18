@@ -99,6 +99,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/playground/api/session/{sessionId}', [NanoBananaPlaygroundController::class, 'deleteSession'])
         ->name('playground.api.session.delete');
 
+    // Proxy an external image through the server to avoid browser CORS restrictions
+    Route::get('/playground/api/proxy-image', [NanoBananaPlaygroundController::class, 'proxyImage'])
+        ->name('playground.api.proxy.image');
+
     // Gallery routes
     Route::get('/gallery', [GalleryController::class, 'index'])
         ->name('gallery');
