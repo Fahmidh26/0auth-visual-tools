@@ -287,60 +287,9 @@
         40%          { opacity:1;   transform:scale(1);   }
     }
 
-    /* ── Sessions modal ──────────────────────────────── */
-    #sessionsModal {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.75);
-        backdrop-filter: blur(6px);
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem;
-    }
-    #sessionsModalInner {
-        background: rgba(18, 22, 30, 0.98);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 1.5rem;
-        width: 100%;
-        max-width: 680px;
-        max-height: 80vh;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        box-shadow: 0 32px 80px rgba(0,0,0,0.7);
-    }
-
-    .session-card {
-        display: flex;
-        align-items: center;
-        gap: 0.875rem;
-        padding: 0.875rem 1rem;
-        border-radius: 0.875rem;
-        border: 1px solid transparent;
-        cursor: pointer;
-        transition: all 0.15s;
-    }
-    .session-card:hover {
-        background: rgba(255,255,255,0.04);
-        border-color: rgba(255,255,255,0.06);
-    }
-
-    /* ── Image lightbox ──────────────────────────────── */
-    #lightbox {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.88);
-        backdrop-filter: blur(8px);
-        z-index: 200;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-    }
-
     /* ── Drag-over glow on canvas ────────────────────── */
+
+    /* ── Drag-over glow on canvas ─────────────────────*/
     #canvasStage.drag-over {
         outline: 2px dashed rgba(19,164,236,0.5);
         outline-offset: -2px;
@@ -405,7 +354,7 @@
                         class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary/80 hover:bg-primary text-white text-xs font-medium transition-colors backdrop-blur-sm">
                         <span class="material-symbols-outlined text-sm">recycling</span> Use as ref
                     </button>
-                    <button onclick="openLightbox(document.getElementById('canvasMainImage').src)"
+                    <button onclick="window.open(document.getElementById('canvasMainImage').src,'_blank')"
                         class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-black/70 hover:bg-black/90 text-white text-xs font-medium transition-colors backdrop-blur-sm border border-white/10">
                         <span class="material-symbols-outlined text-sm">open_in_full</span> Expand
                     </button>
@@ -440,13 +389,6 @@
             <span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
         </div>
         <span class="text-xs font-semibold text-white flex-1">AI Studio Chat</span>
-
-        {{-- Sessions button --}}
-        <button onclick="event.stopPropagation(); openSessionsModal()"
-            title="Load a past session"
-            class="size-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors flex-shrink-0">
-            <span class="material-symbols-outlined text-sm">history</span>
-        </button>
 
         {{-- New chat button --}}
         <button onclick="event.stopPropagation(); newChat()"
@@ -508,61 +450,6 @@
     </div>
 </div>
 
-{{-- ══════════════════════════════════════════════════════════ --}}
-{{-- SESSIONS MODAL                                             --}}
-{{-- ══════════════════════════════════════════════════════════ --}}
-<div id="sessionsModal" class="hidden" onclick="closeSessionsModal()">
-    <div id="sessionsModalInner" onclick="event.stopPropagation()">
-        {{-- Header --}}
-        <div class="flex items-center justify-between px-6 py-4 border-b border-white/07 flex-shrink-0">
-            <div>
-                <h2 class="text-base font-semibold text-white">Past Sessions</h2>
-                <p class="text-xs text-slate-500 mt-0.5">Click a session to load it onto the canvas</p>
-            </div>
-            <button onclick="closeSessionsModal()"
-                class="size-8 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
-                <span class="material-symbols-outlined text-base">close</span>
-            </button>
-        </div>
-
-        {{-- Search --}}
-        <div class="px-5 py-3 border-b border-white/05 flex-shrink-0">
-            <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/05 border border-white/05">
-                <span class="material-symbols-outlined text-slate-600 text-base">search</span>
-                <input id="modalSearch" type="text" placeholder="Search sessions…"
-                    class="bg-transparent text-xs text-slate-300 placeholder-slate-600 outline-none flex-1"
-                    oninput="filterModalSessions(this.value)">
-            </div>
-        </div>
-
-        {{-- Session list --}}
-        <div id="modalSessionList" class="overflow-y-auto flex-1 p-4 space-y-2">
-            <div class="text-center py-10">
-                <div class="size-7 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
-                <p class="text-xs text-slate-500">Loading sessions…</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- ══════════════════════════════════════════════════════════ --}}
-{{-- LIGHTBOX                                                   --}}
-{{-- ══════════════════════════════════════════════════════════ --}}
-<div id="lightbox" class="hidden" onclick="closeLightbox()">
-    <div class="relative" onclick="event.stopPropagation()">
-        <img id="lightboxImg" src="" alt="" class="max-w-full max-h-[85vh] rounded-2xl shadow-2xl object-contain">
-        <div class="absolute top-3 right-3 flex gap-2">
-            <a id="lightboxDownload" href="#" download="generated.jpg"
-                class="size-9 rounded-xl bg-black/60 hover:bg-black text-white flex items-center justify-center transition-colors border border-white/10">
-                <span class="material-symbols-outlined text-sm">download</span>
-            </a>
-            <button onclick="closeLightbox()"
-                class="size-9 rounded-xl bg-black/60 hover:bg-black text-white flex items-center justify-center transition-colors border border-white/10">
-                <span class="material-symbols-outlined text-sm">close</span>
-            </button>
-        </div>
-    </div>
-</div>
 
 @endsection
 
@@ -576,7 +463,6 @@ const S = {
     refFile:        null,
     isGenerating:   false,
     minichatOpen:   true,
-    allSessions:    [],
     activeFlowIdx:  -1,
 };
 const CSRF = document.querySelector('meta[name="csrf-token"]').content;
@@ -600,20 +486,6 @@ function newChat() {
     renderCanvasImage(null);
     document.getElementById('sessionLabel').textContent = 'New session';
     document.getElementById('genCount').textContent     = '0 generations';
-}
-
-async function loadSessions() {
-    try {
-        const r    = await fetch('{{ route("playground.api.sessions") }}', {
-            headers: { 'X-CSRF-TOKEN': CSRF, Accept: 'application/json' }
-        });
-        const data = await r.json();
-        S.allSessions = (data.success && data.sessions) ? data.sessions : [];
-        renderModalSessions(S.allSessions);
-    } catch {
-        document.getElementById('modalSessionList').innerHTML =
-            '<p class="text-xs text-slate-600 text-center py-8">Could not load sessions</p>';
-    }
 }
 
 async function loadSession(sessionId) {
@@ -764,7 +636,7 @@ function buildMiniMsgHTML(msg) {
     }
     const imgHTML = msg.imageUrl ? `
         <img src="${esc(msg.imageUrl)}" class="mini-img-thumb mb-1.5"
-             onclick="openLightbox('${esc(msg.imageUrl)}')">` : '';
+             onclick="window.open('${esc(msg.imageUrl)}','_blank')">` : '';
     const textHTML = msg.textResponse
         ? `<p class="text-[11px] text-slate-400 leading-relaxed">${esc(truncate(msg.textResponse, 120))}</p>` : '';
     return `
@@ -877,55 +749,6 @@ function updateFlowActiveState() {
     });
 }
 
-// ── Render: modal sessions ─────────────────────────────────────────────────────
-function renderModalSessions(sessions) {
-    const el = document.getElementById('modalSessionList');
-    if (!sessions.length) {
-        el.innerHTML = `
-            <div class="text-center py-12">
-                <span class="material-symbols-outlined text-3xl text-slate-700 block mb-2">history</span>
-                <p class="text-sm text-slate-600">No past sessions found</p>
-            </div>`;
-        return;
-    }
-    el.innerHTML = sessions.map(s => {
-        const msgs     = Array.isArray(s.messages) ? s.messages : [];
-        const preview  = msgs.find(m => m.role === 'user')?.prompt || 'Empty session';
-        const imgCount = msgs.filter(m => m.imageUrl).length;
-        const date     = formatDate(s.last_updated_at || s.updated_at);
-        const thumbs   = msgs.filter(m => m.imageUrl).slice(0, 4).map(m => m.imageUrl);
-
-        return `
-        <div class="session-card" onclick="loadSession('${esc(s.session_id)}')">
-            <div class="flex gap-1 flex-shrink-0">
-                ${thumbs.length
-                    ? thumbs.map(t => `<img src="${esc(t)}" class="w-12 h-12 rounded-lg object-cover border border-white/07">`).join('')
-                    : `<div class="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/15 to-secondary/15 flex items-center justify-center border border-white/05">
-                          <span class="material-symbols-outlined text-slate-600 text-lg">image</span>
-                       </div>`}
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-slate-200 truncate">${esc(truncate(preview, 50))}</p>
-                <div class="flex items-center gap-3 mt-1">
-                    <span class="text-xs text-slate-500">${date}</span>
-                    <span class="text-xs text-slate-600">${imgCount} image${imgCount !== 1 ? 's' : ''}</span>
-                </div>
-            </div>
-            <span class="material-symbols-outlined text-slate-600 flex-shrink-0">chevron_right</span>
-        </div>`;
-    }).join('');
-}
-
-function filterModalSessions(q) {
-    const filtered = q.trim()
-        ? S.allSessions.filter(s => {
-            const msgs = Array.isArray(s.messages) ? s.messages : [];
-            return msgs.map(m => m.prompt || '').join(' ').toLowerCase().includes(q.toLowerCase());
-          })
-        : S.allSessions;
-    renderModalSessions(filtered);
-}
-
 // ── Minichat toggle ───────────────────────────────────────────────────────────
 function toggleMinichat() {
     const panel = document.getElementById('minichat');
@@ -933,18 +756,6 @@ function toggleMinichat() {
     S.minichatOpen = !S.minichatOpen;
     panel.classList.toggle('collapsed', !S.minichatOpen);
     icon.textContent = S.minichatOpen ? 'expand_more' : 'expand_less';
-}
-
-// ── Sessions modal ─────────────────────────────────────────────────────────────
-function openSessionsModal() {
-    document.getElementById('sessionsModal').classList.remove('hidden');
-    document.getElementById('sessionsModal').style.display = 'flex';
-    document.getElementById('modalSearch').value = '';
-    loadSessions();
-}
-function closeSessionsModal() {
-    document.getElementById('sessionsModal').style.display = 'none';
-    document.getElementById('sessionsModal').classList.add('hidden');
 }
 
 // ── Canvas actions ─────────────────────────────────────────────────────────────
@@ -1018,18 +829,6 @@ function setupDragDrop() {
     });
 }
 
-// ── Lightbox ───────────────────────────────────────────────────────────────────
-function openLightbox(url) {
-    document.getElementById('lightboxImg').src         = url;
-    document.getElementById('lightboxDownload').href   = url;
-    document.getElementById('lightbox').classList.remove('hidden');
-    document.getElementById('lightbox').style.display  = 'flex';
-}
-function closeLightbox() {
-    document.getElementById('lightbox').style.display = 'none';
-    document.getElementById('lightbox').classList.add('hidden');
-}
-
 // ── UI helpers ────────────────────────────────────────────────────────────────
 function setMiniGenerating(gen) {
     document.getElementById('miniSendBtn').disabled      = gen;
@@ -1060,12 +859,5 @@ function formatDate(d) {
     return dt.toLocaleDateString([],{month:'short',day:'numeric'});
 }
 
-// Close modal on Escape
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-        closeLightbox();
-        closeSessionsModal();
-    }
-});
 </script>
 @endpush
