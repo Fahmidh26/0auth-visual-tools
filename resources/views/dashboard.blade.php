@@ -107,12 +107,12 @@
         <div id="quickResultContent" class="hidden">
             <div class="flex flex-col lg:flex-row min-h-[420px]">
                 <!-- Image Panel -->
-                <div class="lg:w-[55%] relative overflow-hidden bg-black">
+                <div class="lg:w-[55%] relative overflow-hidden bg-black group/img cursor-zoom-in" onclick="openLightbox()">
                     <img
                         id="quickResultImg"
                         src=""
                         alt=""
-                        class="w-full h-full object-cover min-h-80 lg:min-h-[420px] transition-opacity duration-500"
+                        class="w-full h-full object-cover min-h-80 lg:min-h-[420px] transition-all duration-500 group-hover/img:scale-105"
                         style="opacity:0"
                         onload="this.style.opacity='1'"
                     >
@@ -123,6 +123,11 @@
                     <div class="absolute top-4 left-4 flex items-center gap-2 bg-emerald-500/20 backdrop-blur-sm border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-full text-xs font-bold">
                         <span class="material-symbols-outlined text-sm" style="font-size:14px">check_circle</span>
                         Generated
+                    </div>
+                    <!-- Zoom hint -->
+                    <div class="absolute bottom-4 right-4 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm border border-white/10 text-white/70 px-3 py-1.5 rounded-full text-xs opacity-0 group-hover/img:opacity-100 transition-opacity pointer-events-none">
+                        <span class="material-symbols-outlined" style="font-size:14px">zoom_in</span>
+                        Click to expand
                     </div>
                 </div>
 
@@ -246,6 +251,56 @@
 </section>
 @endsection
 
+@push('modals')
+<!-- Fullscreen Lightbox Modal -->
+<div
+    id="lightboxModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+    onclick="if(event.target===this) closeLightbox()"
+>
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/90 backdrop-blur-md"></div>
+
+    <!-- Image container -->
+    <div class="relative z-10 max-w-[92vw] max-h-[92vh] flex flex-col items-center gap-4">
+        <img
+            id="lightboxImg"
+            src=""
+            alt=""
+            class="max-w-full max-h-[80vh] rounded-2xl shadow-2xl shadow-black/80 object-contain"
+            style="transition: opacity 0.2s ease"
+        >
+        <!-- Toolbar -->
+        <div class="flex items-center gap-3">
+            <a
+                id="lightboxDownload"
+                href="#"
+                target="_blank"
+                class="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-primary/20"
+            >
+                <span class="material-symbols-outlined text-base">download</span>
+                Download
+            </a>
+            <button
+                onclick="closeLightbox()"
+                class="flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-sm font-bold rounded-xl transition-all border border-white/10"
+            >
+                <span class="material-symbols-outlined text-base">close</span>
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Close button (top-right) -->
+    <button
+        onclick="closeLightbox()"
+        class="absolute top-5 right-5 z-20 w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-all border border-white/10"
+    >
+        <span class="material-symbols-outlined">close</span>
+    </button>
+</div>
+@endpush
+
 @push('scripts')
 <script>
 async function quickGenerate() {
@@ -329,6 +384,31 @@ function setPreset(text) {
     ta.focus();
     ta.classList.remove('ring-2', 'ring-red-500/50', 'border-red-500/50');
 }
+
+function openLightbox() {
+    const src = document.getElementById('quickResultImg').src;
+    if (!src) return;
+    const modal = document.getElementById('lightboxModal');
+    const img   = document.getElementById('lightboxImg');
+    const dl    = document.getElementById('lightboxDownload');
+    img.src  = src;
+    img.alt  = document.getElementById('quickResultImg').alt;
+    dl.href  = src;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    const modal = document.getElementById('lightboxModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+});
 
 function resetQuickStart() {
     document.getElementById('quickResultSection').classList.add('hidden');
