@@ -5,7 +5,8 @@
       "Bash(php artisan db:seed:*)",
       "Bash(php artisan config:clear:*)",
       "Bash(php artisan:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(dir:*)"
     ]
   }
 }
