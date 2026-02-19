@@ -73,14 +73,22 @@
         }
         #appSidebar.sidebar-collapsed .sidebar-logo {
             justify-content: center;
-            padding: 1rem;
+            padding: 0.875rem;
         }
         #appSidebar.sidebar-collapsed .sidebar-logo .sidebar-label {
             display: none;
         }
-        /* Toggle button direction indicator */
-        #appSidebar.sidebar-collapsed #sidebarToggleIcon {
-            transform: rotate(180deg);
+        /* Hide chevron button when collapsed — bolt icon handles expand */
+        #appSidebar.sidebar-collapsed .sidebar-toggle-btn {
+            display: none;
+        }
+        /* Bolt logo acts as expand trigger when collapsed */
+        #appSidebar.sidebar-collapsed #sidebarLogoBtn {
+            cursor: pointer;
+        }
+        #appSidebar:not(.sidebar-collapsed) #sidebarLogoBtn {
+            cursor: default;
+            pointer-events: none;
         }
     </style>
 @stack('styles')
@@ -107,6 +115,14 @@
         const isNowCollapsed = sidebar.classList.toggle('sidebar-collapsed');
         main.style.marginLeft = isNowCollapsed ? '4.5rem' : '';
         if (icon) icon.textContent = isNowCollapsed ? 'chevron_right' : 'chevron_left';
+    }
+
+    // Only expands — used by the bolt logo icon click (no-op when already open)
+    function toggleSidebarIfCollapsed() {
+        const sidebar = document.getElementById('appSidebar');
+        if (sidebar && sidebar.classList.contains('sidebar-collapsed')) {
+            toggleSidebar();
+        }
     }
 
     // User dropdown toggle

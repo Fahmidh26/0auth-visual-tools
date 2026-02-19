@@ -670,6 +670,16 @@ const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+    // Auto-collapse sidebar for full-screen canvas experience
+    const sidebar = document.getElementById('appSidebar');
+    const main    = document.getElementById('appMain');
+    const icon    = document.getElementById('sidebarToggleIcon');
+    if (sidebar && !sidebar.classList.contains('sidebar-collapsed')) {
+        sidebar.classList.add('sidebar-collapsed');
+        if (main)  main.style.marginLeft = '4.5rem';
+        if (icon)  icon.textContent = 'chevron_right';
+    }
+
     newChat();
     setupDragDrop();
 });

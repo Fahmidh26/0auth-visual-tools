@@ -2,14 +2,21 @@
 <aside id="appSidebar" class="w-72 glass border-r border-white/5 flex flex-col fixed h-screen z-50 overflow-hidden">
 
 <!-- Logo -->
-<div class="sidebar-logo p-6 flex items-center gap-3 flex-shrink-0 relative">
-    <div class="size-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white flex-shrink-0">
+<div class="sidebar-logo p-5 flex items-center gap-3 flex-shrink-0 relative">
+    {{-- Bolt icon — also acts as expand button when sidebar is collapsed --}}
+    <button onclick="toggleSidebarIfCollapsed()" title="Expand sidebar"
+        id="sidebarLogoBtn"
+        class="size-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white flex-shrink-0 transition-shadow hover:shadow-lg hover:shadow-primary/20">
         <span class="material-symbols-outlined font-bold">bolt</span>
-    </div>
+    </button>
     <div class="sidebar-label overflow-hidden">
         <h1 class="text-lg font-bold tracking-tight text-white whitespace-nowrap">Clever Creator</h1>
         <p class="text-[10px] uppercase tracking-widest text-primary font-semibold whitespace-nowrap">Premium AI Suite</p>
     </div>
+    <button onclick="toggleSidebar()" title="Collapse sidebar"
+        class="sidebar-toggle-btn ml-auto flex-shrink-0 size-8 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center">
+        <span id="sidebarToggleIcon" class="material-symbols-outlined text-sm transition-transform duration-300">chevron_left</span>
+    </button>
 </div>
 
 <!-- Nav -->
@@ -64,14 +71,6 @@
         <span class="sidebar-label text-sm font-medium whitespace-nowrap">Help Center</span>
     </div>
 
-    <!-- Sidebar Toggle (always visible, at bottom of nav) -->
-    <div class="pt-4">
-        <button onclick="toggleSidebar()" title="Toggle sidebar"
-            class="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-colors">
-            <span id="sidebarToggleIcon" class="material-symbols-outlined flex-shrink-0 transition-transform duration-300">chevron_left</span>
-            <span class="sidebar-label text-xs font-medium whitespace-nowrap">Collapse sidebar</span>
-        </button>
-    </div>
 </nav>
 
 <!-- Footer: credits / token usage -->
